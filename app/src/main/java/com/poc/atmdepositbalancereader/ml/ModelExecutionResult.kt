@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================
 */
 
-package org.tensorflow.lite.examples.ocr
+package com.poc.atmdepositbalancereader.ml
 
 import android.graphics.Bitmap
 

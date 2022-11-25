@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ATMDepositBalanceReader</string>
     <string name="tv_error">Something went wrong</string>
+    <string name="tv_capture">Capture</string>
 </resources>

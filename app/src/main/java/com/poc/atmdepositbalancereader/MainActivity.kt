@@ -3,6 +3,9 @@ package com.poc.atmdepositbalancereader
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -12,6 +15,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.chip.ChipGroup
+import com.poc.atmdepositbalancereader.ml.MLExecutionViewModel
+import com.poc.atmdepositbalancereader.ml.OCRModelExecutor
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.sync.Mutex
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -28,6 +37,17 @@ class MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
+    private lateinit var viewModel: MLExecutionViewModel
+    private lateinit var chipsGroup: ChipGroup
+    private lateinit var runButton: Button
+    private lateinit var textPromptTextView: TextView
+
+    private var useGPU = false
+    private var selectedImageName = "tensorflow.jpg"
+    private var ocrModel: OCRModelExecutor? = null
+    private val inferenceThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val mainScope = MainScope()
+    private val mutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

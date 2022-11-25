@@ -48,7 +48,6 @@ import org.opencv.imgproc.Imgproc.getPerspectiveTransform
 import org.opencv.imgproc.Imgproc.warpPerspective
 import org.opencv.utils.Converters.vector_RotatedRect_to_Mat
 import org.opencv.utils.Converters.vector_float_to_Mat
-import org.tensorflow.lite.examples.ocr.ModelExecutionResult
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
 
