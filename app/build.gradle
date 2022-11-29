@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
     id 'kotlin-kapt'
 }
 
@@ -41,6 +40,12 @@ android {
         jvmTarget = '1.8'
     }
 }
+
+// App assets folder:
+project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
+
+// Download TF Lite model.
+apply from: 'download.gradle'
 
 dependencies {
 

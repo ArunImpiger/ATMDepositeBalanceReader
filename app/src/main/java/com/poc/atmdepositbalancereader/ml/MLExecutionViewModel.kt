@@ -18,6 +18,7 @@ package com.poc.atmdepositbalancereader.ml
 
 import androidx.lifecycle.ViewModel
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -42,16 +43,13 @@ class MLExecutionViewModel : ViewModel() {
   // the execution of the model has to be on the same thread where the interpreter
   // was created
   fun onApplyModel(
-    context: Context,
-    fileName: String,
+    image: Bitmap,
     ocrModel: OCRModelExecutor?,
     inferenceThread: ExecutorCoroutineDispatcher
   ) {
     viewModelScope.launch(inferenceThread) {
-      val inputStream = context.assets.open(fileName)
-      val contentImage = BitmapFactory.decodeStream(inputStream)
       try {
-        val result = ocrModel?.execute(contentImage)
+        val result = ocrModel?.execute(image)
         _resultingBitmap.postValue(result)
       } catch (e: Exception) {
         Log.e(TAG, "Fail to execute OCRModelExecutor: ${e.message}")
