@@ -12,7 +12,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
-import android.widget.Button
+import android.util.Pair
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -20,20 +21,19 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
-import com.poc.atmdepositbalancereader.ml.MLExecutionViewModel
-import com.poc.atmdepositbalancereader.ml.OCRModelExecutor
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.max
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,13 +53,17 @@ class MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private lateinit var viewModel: MLExecutionViewModel
 
-    private var useGPU = false
-    private var ocrModel: OCRModelExecutor? = null
-    private val inferenceThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    private val mainScope = MainScope()
-    private val mutex = Mutex()
+    /* private lateinit var viewModel: MLExecutionViewModel
+     private var useGPU = false
+     private var ocrModel: OCRModelExecutor? = null
+     private val inferenceThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+     private val mainScope = MainScope()
+     private val mutex = Mutex()*/
+    private var listValue: ArrayList<String>? = null
+
+    private var mImageMaxWidth: Int? = null
+    private var mImageMaxHeight: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,14 +77,14 @@ class MainActivity : AppCompatActivity() {
 
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
-        initViewModel()
+        // initViewModel()
     }
 
     private fun startCamera() {
-        val pvImageCapture: PreviewView = findViewById(R.id.viewFinder)
+        val pvImageCapture: PreviewView = findViewById(R.id.pv_image_capture)
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
-        cameraProviderFuture.addListener(Runnable {
+        cameraProviderFuture.addListener({
 
             // Used to bind the lifecycle of cameras to the lifecycle owner
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
@@ -92,7 +96,8 @@ class MainActivity : AppCompatActivity() {
                     it.setSurfaceProvider(pvImageCapture.surfaceProvider)
                 }
 
-            imageCapture = ImageCapture.Builder().build()
+            imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build()
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -106,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                     this, cameraSelector, preview, imageCapture
                 )
 
-                findViewById<Button>(R.id.camera_capture_button)?.setOnClickListener {
+                atv_Capture?.setOnClickListener {
                     val mDateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
 
                     val contentValues = ContentValues().apply {
@@ -150,7 +155,8 @@ class MainActivity : AppCompatActivity() {
                                 val captureImage =
                                     BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                                 Log.e(TAG, "onCaptureSuccess: $captureImage")
-                                detectText(captureImage)
+                                //detectText(captureImage)
+                                runTextRecognition(captureImage)
                                 super.onCaptureSuccess(image)
                             }
                         })
@@ -165,6 +171,7 @@ class MainActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    /*
     private fun initViewModel() {
         viewModel = ViewModelProvider.AndroidViewModelFactory(application)
             .create(MLExecutionViewModel::class.java)
@@ -205,6 +212,82 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }*/
+
+    private fun getTargetedWidthHeight(): Pair<Int, Int> {
+        val targetWidth: Int
+        val targetHeight: Int
+        val maxWidthForPortraitMode: Int = 250
+        val maxHeightForPortraitMode: Int = 250
+        targetWidth = maxWidthForPortraitMode
+        targetHeight = maxHeightForPortraitMode
+        return Pair(targetWidth, targetHeight)
+    }
+
+    private fun runTextRecognition(image: Bitmap) {
+
+        // Get the dimensions of the View
+        val targetedSize: Pair<Int, Int> = getTargetedWidthHeight()
+
+        val targetWidth = targetedSize.first
+        val maxHeight = targetedSize.second
+
+        // Determine how much to scale down the image
+        val scaleFactor: Float = max(
+            image.width.toFloat() / targetWidth.toFloat(),
+            image.height.toFloat() / maxHeight.toFloat()
+        )
+
+        val resizedBitmap = Bitmap.createScaledBitmap(
+            image,
+            (image.width / scaleFactor).toInt(),
+            (image.height / scaleFactor).toInt(),
+            true
+        )
+
+        val image: InputImage = InputImage.fromBitmap(resizedBitmap, 0)
+        val recognizer: TextRecognizer =
+            TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+        recognizer.process(image)
+            .addOnSuccessListener { processTextRecognitionResult(it) }
+            .addOnFailureListener { }
+    }
+
+    private fun processTextRecognitionResult(texts: Text) {
+        val blocks: List<Text.TextBlock> = texts.textBlocks
+        if (blocks.isEmpty()) {
+            Toast.makeText(baseContext, "Unable to detect text", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        p_loader_scan?.visibility = View.VISIBLE
+
+        listValue = ArrayList()
+        for (i in blocks.indices) {
+            val lines: List<Text.Line> = blocks[i].getLines()
+            var line = StringBuilder()
+            for (j in lines.indices) {
+                val elements: List<Text.Element> = lines[j].getElements()
+                var value = StringBuilder()
+                for (k in elements.indices) {
+                    value.append(elements[k].text)
+                    value.append(" ")
+                }
+                line.append(value)
+                line.append(" ")
+                value = StringBuilder()
+            }
+            Log.e(TAG, line.toString())
+            listValue?.add(line.toString())
+            line = StringBuilder()
+        }
+
+        p_loader_scan?.visibility = View.GONE
+
+        val toDetectedDetailsActivity = Intent(this, DetectedDetailsActivity::class.java)
+        toDetectedDetailsActivity.putExtra("Data", listValue)
+        startActivity(toDetectedDetailsActivity)
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -226,7 +309,7 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             // below android 11
-             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
     }
 

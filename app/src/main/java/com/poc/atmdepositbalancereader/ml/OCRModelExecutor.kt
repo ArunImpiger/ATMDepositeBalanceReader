@@ -16,7 +16,7 @@ limitations under the License.
 
 package com.poc.atmdepositbalancereader.ml
 
-import android.content.Context
+/*import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -49,7 +49,7 @@ import org.opencv.imgproc.Imgproc.warpPerspective
 import org.opencv.utils.Converters.vector_RotatedRect_to_Mat
 import org.opencv.utils.Converters.vector_float_to_Mat
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.gpu.GpuDelegate
+import org.tensorflow.lite.gpu.GpuDelegate*/
 
 /**
  * Class to run the OCR models. The OCR process is broken down into 2 stages: 1) Text detection
@@ -57,7 +57,8 @@ import org.tensorflow.lite.gpu.GpuDelegate
  * recognition using
  * [Keras OCR model](https://tfhub.dev/tulasiram58827/lite-model/keras-ocr/float16/2)
  */
-class OCRModelExecutor(context: Context, private var useGPU: Boolean = false) : AutoCloseable {
+class OCRModelExecutor {}
+/*class OCRModelExecutor(context: Context, private var useGPU: Boolean = false) : AutoCloseable {
   private var gpuDelegate: GpuDelegate? = null
 
   private val recognitionResult: ByteBuffer
@@ -381,4 +382,4 @@ class OCRModelExecutor(context: Context, private var useGPU: Boolean = false) : 
     private const val recognitionImageStd = 255.toFloat()
     private const val recognitionModelOutputSize = 48
   }
-}
+}*/

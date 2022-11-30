@@ -10,10 +10,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
+        /*maven {
             name 'ossrh-snapshot'
             url 'https://oss.sonatype.org/content/repositories/snapshots'
-        }
+        }*/
     }
 }
 rootProject.name = "ATMDepositBalanceReader"

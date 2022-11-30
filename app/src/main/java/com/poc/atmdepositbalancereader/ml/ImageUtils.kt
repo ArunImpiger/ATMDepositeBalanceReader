@@ -22,12 +22,12 @@ import android.graphics.ImageFormat.RGB_565
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
-import org.tensorflow.lite.DataType
+/*import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
-import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp
+import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp*/
 
 /** Collection of image reading and manipulation utilities in the form of static functions. */
 abstract class ImageUtils {
@@ -141,7 +141,7 @@ abstract class ImageUtils {
      * @param stds
      * - stds of the images
      */
-    fun bitmapToTensorImageForRecognition(
+    /*fun bitmapToTensorImageForRecognition(
       bitmapIn: Bitmap,
       width: Int,
       height: Int,
@@ -162,7 +162,7 @@ abstract class ImageUtils {
       return tensorImage
     }
 
-    /**
+    *//**
      * Convert a bitmap to a TensorImage for the detection model with target size and normalization
      *
      * @param bitmapIn
@@ -175,7 +175,7 @@ abstract class ImageUtils {
      * - means of the images
      * @param stds
      * - stds of the images
-     */
+     *//*
     fun bitmapToTensorImageForDetection(
       bitmapIn: Bitmap,
       width: Int,
@@ -207,6 +207,6 @@ abstract class ImageUtils {
         ret.eraseColor(color)
       }
       return ret
-    }
+    }*/
   }
 }

@@ -42,7 +42,7 @@ class MLExecutionViewModel : ViewModel() {
 
   // the execution of the model has to be on the same thread where the interpreter
   // was created
-  fun onApplyModel(
+  /*fun onApplyModel(
     image: Bitmap,
     ocrModel: OCRModelExecutor?,
     inferenceThread: ExecutorCoroutineDispatcher
@@ -56,5 +56,5 @@ class MLExecutionViewModel : ViewModel() {
         _resultingBitmap.postValue(null)
       }
     }
-  }
+  }*/
 }

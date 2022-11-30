@@ -4,37 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".DetectedDetailsActivity">
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/pv_image_capture"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rc_DetectedTextListHolder"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/p_loader_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/atv_SaveSlipDetail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/atv_Capture"
-        android:layout_width="wrap_content"
+        android:id="@+id/atv_SaveSlipDetail"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/purple_700"
+        android:layout_margin="@dimen/dimen_5dp"
+        android:background="@color/purple_500"
+        android:gravity="center"
         android:padding="@dimen/dimen_10dp"
-        android:text="@string/tv_capture"
-        android:layout_margin="@dimen/dimen_10dp"
+        android:text="@string/tv_save"
         android:textColor="@color/white"
-        android:textSize="14sp"
+        android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
